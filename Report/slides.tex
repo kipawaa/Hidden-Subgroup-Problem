@@ -1,0 +1,907 @@
+\documentclass{beamer}
+
+% Language setting
+% Replace `english' with e.g. `spanish' to change the document language
+\usepackage[english]{babel}
+
+% bibliography package
+\usepackage{csquotes} % ensures that babel cooperates with biblatex
+\usepackage[backend=biber, style=alphabetic]{biblatex}
+\addbibresource{sources.bib}
+
+% Math packages
+\usepackage{amsmath, amsthm, amsfonts, amssymb}
+\usepackage{mathtools}
+\usepackage{braket} % for quantum computing notation
+
+    % fixing braket definitions
+    \renewcommand{\bra}{\Bra}
+    \renewcommand{\ket}{\Ket}
+    \renewcommand{\braket}{\Braket}
+    \renewcommand{\set}{\Set}
+
+% Language setting
+% Replace `english' with e.g. `spanish' to change the document language
+\usepackage[english]{babel}
+
+% bibliography package
+\usepackage{csquotes} % ensures that babel cooperates with biblatex
+\usepackage[backend=biber, style=alphabetic]{biblatex}
+\addbibresource{sources.bib}
+
+% Math packages
+\usepackage{amsmath, amsthm, amsfonts, amssymb}
+\usepackage{mathtools}
+\usepackage{braket} % for quantum computing notation
+
+% figure formatting packages
+\usepackage{float} % allows strict placement of figures
+\usepackage{graphicx} % for including and formatting figures
+\usepackage{caption, subcaption} % for formatting captions on figures
+
+% fixing braket definitions
+\renewcommand{\bra}{\Bra}
+\renewcommand{\ket}{\Ket}
+\renewcommand{\braket}{\Braket}
+\renewcommand{\set}{\Set}
+\newcommand{\camelia}{{\color{red}comment: }}
+
+% general math commands for convenience
+\newcommand{\abs}[1]{\left\lvert #1 \right\rvert}
+\newcommand{\ceil}[1]{\left \lceil #1 \right \rceil}
+\newcommand{\floor}[1]{\left \lfloor #1 \right \rfloor}
+\newcommand{\inner}[2]{\left\langle #1, #2 \right\rangle}
+\newcommand{\norm}[1]{\left\lVert #1 \right\rVert}
+\newcommand{\tensor}{\otimes}
+\newcommand{\tr}[1]{\textnormal{tr}\left(#1\right)}
+\renewcommand{\dim}[1]{\textnormal{dim}\left(#1\right)}
+\newcommand{\conj}[1]{\overline{#1}}
+\newcommand{\Cl}[1]{\textnormal{Cl}\left(#1\right)}
+\newcommand{\gen}[1]{\left\langle #1 \right\rangle}
+\newcommand{\vspan}[1]{\textnormal{span}\{#1\}}
+\newcommand{\iso}{\cong}
+
+\newcommand{\bb}[1]{\mathbb{#1}}
+\renewcommand{\cal}[1]{\mathcal{#1}}
+
+\title{The Hidden Subgroup Problem}
+\author{River McCubbin With Supervisor Camelia Karimian-Pour}
+
+\begin{document}
+\frame{\titlepage}
+
+\begin{frame}
+\frametitle{Overview}
+    \begin{enumerate}
+    \item History and Background:
+        \begin{enumerate}
+        \item Linear Algebra
+        \item Group Theory
+        \item Quantum Computing
+        \item Representation Theory
+        \item Quantum Fourier Transform
+        \end{enumerate}
+    \item Abelian HSP
+    \item Non-Abelian HSP
+    \end{enumerate}
+\end{frame}
+
+\begin{frame}
+\frametitle{Linear Algebra: Hilbert Space}\label{history:linear_algebra}
+        \begin{definition}[Hilbert Space]\label{def:hilbert_space}
+            A vector space $\cal{H}$ is called a \textit{Hilbert space} if it is a complete inner product space, i.e. a vector space with an inner product such that any Cauchy sequence in $\cal{H}$ converges in $\cal{H}$ with respect to the inner product.
+        \end{definition}
+
+        Typically $\bb{C}^{2^n}$.
+\end{frame}
+
+\begin{frame}
+\frametitle{Linear Algebra: Operators}
+        \begin{definition}[Linear Operator]\label{def:linear_operator}
+            A \textit{linear operator} $\phi : V \to W$ between two vector spaces over a field $\bb{F}$ is an operator satisfying $\phi(ax + by) = a\phi(x) + b\phi(y)$, for all $x, y \in V$ and $a, b \in \bb{F}$.
+        \end{definition}
+        \begin{definition}[Adjoint Operator]\label{def:adjoint}
+            Given an operator $\phi : \cal{H} \to \cal{H}$ on a Hilbert space $\cal{H}$, we define the \textit{adjoint} operator $\phi^*$ such that $\inner{\phi(x)}{y} = \inner{x}{\phi^*(y)}$.\\
+            If $\phi$ has a complex matrix representation $T$ then we can find the matrix representation of $\phi^*$ by taking the conjugate transpose of $T$, denoted $T^*$.
+        \end{definition}
+        \begin{definition}[Unitary Operator]\label{def:unitary_operator}
+            A linear operator $U : \cal{H} \to \cal{H}$ on a Hilbert space $\cal{H}$ is called \textit{unitary} if it preserves the inner product and hence the norm, i.e. if it satisfies $\inner{U(x)}{U(y)} = \inner{x}{y}$.
+        \end{definition}
+\end{frame}
+
+\begin{frame}
+\frametitle{Group Theory: Groups}\label{history:group_theory}
+    \begin{definition}[Group]\label{def:group}
+        A \textit{group} $G = (X, \cdot)$ is a set of elements $X$ along with an operation $\cdot$ on $X$,  such that the following properties hold:\footnote{the $\cdot $ is often omitted as concatenation, $a \cdot b = ab$
+        }
+        \begin{itemize}
+        \item There exists an element $ e \in G$ such that $ae = ea = a$. This element is called the \textit{identity} element.
+        \item $\forall a, b \in G$ we have that $ab \in G$.
+        \item $\forall a, b, c \in G$ we have that $(ab)c = a(bc)$.
+        \item $\forall a \in G, \exists a^{-1} \in G$ such that $aa^{-1} = a^{-1} a = e$.
+        \end{itemize}
+    \end{definition}
+    Finite groups only!\\
+    Order = Size
+\end{frame}
+
+\begin{frame}
+\frametitle{Group Theory: Subgroups}
+    \begin{definition}[Subgroup]\label{def:subgroup}
+        A \textit{subgroup} $H = (A, \cdot)$ of a group $G = (B, \cdot)$ is a group with the same operation as $G$ but fewer elements, $A \subseteq B$.
+        If $H$ is a subgroup of $G$ then we write $H \leqslant G$ if it may be equal, and $H < G$ if $H \neq G$.
+    \end{definition}
+    \begin{definition}[Coset]\label{def:coset}
+        A \textit{coset} of a subgroup $H \leqslant G$ is the set $a \cdot H = \{a \cdot h \mid h \in H\}$. If $G$ is non-abelian then we differentiate the \textit{left} coset as defined above, and the \textit{right} coset $Ha = \{h \cdot a \mid h \in H\}$.
+    \end{definition}
+\end{frame}
+
+\begin{frame}
+\frametitle{Group Theory: Generating Groups}
+        \begin{definition}[Generating Set]\label{def:generating_set}
+                A \textit{generating set} for a group $G$ is a set of elements $\langle g_1, g_2, \dots, g_n \rangle$ such that any element of $G$ can be expressed as a combination of $g_i$.
+        \end{definition}
+
+        Example: $\bb{Z}_3 = \langle 1 \mid 3 = 0\rangle$.
+\end{frame}
+
+\begin{frame}
+\frametitle{Group Theory: Classifying Groups}
+        \begin{definition}[Cyclic Group]\label{def:cyclic}
+                A group $G$ is called \textit{cyclic} if $G = \{e, g, g^2, g^3 \dots g^{n-1}\} = \langle g \mid g^n = e \rangle$ for some element $g \in G$. 
+                We denote such a group $C_n$ where $n$ is the number of elements in $G$.
+        \end{definition}
+
+        \begin{definition}[Dihedral Group]\label{def:dihedral}
+                A group $G$ is called a \textit{dihedral group} if $G = \{e, r, r^2 \dots, r^{n-1}, s, sr, sr^2, \dots, sr^{n-1}\} = \langle r, s \mid r^n = s^2 = srsr = e \rangle$. 
+                We denote the dihedral group of size $2n$ as $D_n$ or $D_{2n}$.
+                This notation varies by author, and is typically clearly illustrated due to the prevalence of both of these notations.
+                For this report, we will be using the notation $D_{2n}$ to represent the dihdedral group of size $2n$.
+                The dihedral group of size $2n$ represents the symmetries of a regular $n$-gon.
+        \end{definition}
+\end{frame}
+
+\begin{frame}
+\frametitle{Group Theory: Morphisms on Groups}
+        \begin{definition}[Homomorphism]\label{def:homomorphism}
+                A function $f: G \to K$ between groups $G$ and $K$ is called a \textit{homomorphism} if $f(ab) f(a)f(b)$ for all $a, b \in G$.
+        \end{definition}
+
+        \begin{definition}[Isomorphism]\label{def:isomorphism}
+                A function $f: G \to K$ between groups $G$ and $K$ is called an \textit{isomorphism} if $f$ is a bijective homomorphism.
+                If such a map exists then we say that $G$ is \textit{isomorphic} to $K$ and we write $G \iso K$.
+        \end{definition}
+\end{frame}
+
+\begin{frame}
+\frametitle{Quantum Computing: Terminology}\label{history:quantum_computing}
+        \begin{definition}[Computational Basis]\label{def:computational_basis}
+            The \textit{computational basis} is an orthonormal basis for $\cal{H}$, and is assumed to be equivalent to the standard basis unless stated otherwise.
+        \end{definition}
+
+        \begin{definition}[Qubit]\label{def:qubit}
+            A \textit{qubit} is a unit vector in $\bb{C}^n$, i.e. a vector with length 1.
+        \end{definition}
+        
+        For example, in $\bb{C}^2$ we take $\cal{B} = \{\ket{0} = (1,0), \ket{1} = (0, 1)\}$ to be the computational basis.
+\end{frame}
+
+\begin{frame}
+\frametitle{Quantum Computing: Tensor Products I}
+        \begin{definition}[Tensor Product of Vectors]\label{def:tensor_product_of_vectors}
+            Let $V$ and $W$ be two vector spaces with bases $\cal{B}_V$ and $\cal{B}_W$ respectively, both over a field $\bb{F}$.
+            Given 
+                $$v = \sum_{v_i \in \cal{B}_V} a_i v_i \in V$$ 
+            and 
+                $$w = \sum_{w_j \in \cal{B}_W} b_j w_j \in W$$
+            with $a_i, b_j \in \bb{F}$, we define the \textit{tensor product} 
+                $$v \otimes w = \sum_{v_i \in \cal{B}_V} \sum_{w_j \in \cal{B}_W} (a_i b_j) (v_i \otimes w_j)$$
+            where $(v_i \otimes w_j)$ is notation for a basis vector in $V \otimes W$.
+        \end{definition}
+\end{frame}
+
+\begin{frame}
+\frametitle{Quantum Computing: Tensor Products II}
+        \begin{definition}[Tensor Product of Vector Spaces]\label{def:tensor_product_of_vector_spaces}
+            Let $V$ and $W$ be two vector spaces, both over a field $\bb{F}$.
+            We define $V \otimes W$ as the space generated by all linear combinations of elements $v \otimes w$ with $v \in V$ and $w \in W$.
+        \end{definition}
+        WARNING: Not all elements are of the form $v \otimes w$.
+        \begin{definition}[Separable and Entangled States]\label{def:separable_and_entangled_states}
+            If an element $a \in V \otimes W$ can be written as $v \otimes w$ for some $v \in V$ and $w \in W$ then we say that $a$ is a \textit{separable} state, otherwise we say that it is an \textit{entangled} state.
+        \end{definition}
+        As an example of generating larger spaces, in a two-qubit system we generate the computational basis by taking $\ket{0} \tensor \ket{0}, \ket{0} \tensor \ket{1}, \ket{1} \tensor \ket{0}, \ket{1} \tensor \ket 1$.
+\end{frame}
+
+\begin{frame}
+\frametitle{Quantum Computing: More Notation}
+        Since this operation is so common in quantum computing, we often abbreviate this notation as follows: $\ket{ab} := \ket{a} \tensor \ket{b}$.
+        We further simplify this for computational basis vectors, where we denote the first basis vector (the vector with a 1 in the first position and 0s elsewhere) as $\ket{0}$, regardless of the dimension of the space.
+        We denote the second basis vector as $\ket{1}$, the third as $\ket{2}$, and in general the $n$th basis vector as $\ket{n-1}$.
+\end{frame}
+
+\begin{frame}
+\frametitle{Quantum Computing: Larger Spaces}
+        \begin{theorem}
+            $\bb{C}^{2^n} \otimes \bb{C}^{2^n} = \bb{C}^{2^{2n}}$.
+        \end{theorem}
+        \begin{proof}
+                We can prove this by verifying that the set of pairwise tensor products of basis elements for $\bb{C}^{2^n}$ generates a basis for $\bb{C}^{2^{2n}}$.
+            We give here a simple example, as the general proof requires knowledge of functional analysis beyond the scope of this report.
+
+            Consider the computational basis $\cal{B} = \{\ket{0}, \ket{1}\}$ for $\bb{C}^2$.\\
+            We will increase the dimension of our state space by taking $\bb{C}^2 \otimes \bb{C}^2 = \bb{C}^4$.\\
+            Computing taking the tensors of our basis we find:
+            \begin{align*}
+            \ket{0} \tensor \ket{0} & & \ket{0} \tensor \ket{1}\\
+            &= \begin{bmatrix} 1 \\ 0 \end{bmatrix} \tensor \begin{bmatrix} 1 \\ 0 \end{bmatrix} & &= \begin{bmatrix} 1 \\ 0 \end{bmatrix} \tensor \begin{bmatrix} 0 \\ 1 \end{bmatrix}\\
+            &= \begin{bmatrix} 1 & \begin{bmatrix} 1 \\ 0 \end{bmatrix} \\ 0 & \begin{bmatrix} 1 \\ 0 \end{bmatrix} \end{bmatrix} & &= \begin{bmatrix} 1 & \begin{bmatrix} 0 \\ 1 \end{bmatrix} \\ 0 & \begin{bmatrix} 0 \\ 1 \end{bmatrix} \end{bmatrix}\\
+            &= \begin{bmatrix} 1 \\ 0 \\ 0 \\ 0 \end{bmatrix} & &= \begin{bmatrix} 0 \\ 1 \\ 0 \\ 0 \end{bmatrix}
+            \end{align*}
+
+            \begin{align*}
+            \ket{1} \tensor \ket{0} & & \ket{1} \tensor \ket{1}\\
+            &= \begin{bmatrix} 0 \\ 1 \end{bmatrix} \tensor \begin{bmatrix} 1 \\ 0 \end{bmatrix} & &= \begin{bmatrix} 0 \\ 1 \end{bmatrix} \tensor \begin{bmatrix} 0 \\ 1 \end{bmatrix}\\
+            &= \begin{bmatrix} 0 & \begin{bmatrix} 1 \\ 0 \end{bmatrix} \\ 1 & \begin{bmatrix} 1 \\ 0 \end{bmatrix} \end{bmatrix} & &= \begin{bmatrix} 0 & \begin{bmatrix} 0 \\ 1 \end{bmatrix} \\ 1 & \begin{bmatrix} 0 \\ 1 \end{bmatrix} \end{bmatrix}\\
+            &= \begin{bmatrix} 0 \\ 0 \\ 1 \\ 0 \end{bmatrix} &&= \begin{bmatrix} 0 \\ 0 \\ 0 \\ 1 \end{bmatrix}
+            \end{align*}
+            which generates a basis for $\bb{C}^{4}$, as wanted.
+        \end{proof}
+\end{frame}
+
+\begin{frame}
+\frametitle{Quantum Computing: Bra-Ket Notation}
+        In quantum computing, we represent states by column vectors, denoted by the ``ket" symbol $\ket{\psi}$ (read ``ket psi").
+        We use the ``bra" symbol $\bra{\psi}$ (read ``bra psi") to denote the linear operator $\bra{\psi} : \cal{H} \to \bb{C}$, the adjoint of $\ket{\psi}$.
+        In essence, this notation is simply a convenient way of writing column vectors ($\ket{\psi}$) and row vectors ($\bra{\psi}$). This notation may seem odd, but when put together we can see why it is useful; $\bra{\psi} \ket{\phi} = \braket{\psi | \phi}$ denotes the result of $\phi$ under the map $\psi$, which is conveniently given by their inner product $\inner{\psi}{\phi}$.
+\end{frame}
+
+\begin{frame}
+\frametitle{Quantum Computing: State Vectors}
+        \begin{definition}[State Vector]\label{def:state_vector}
+            A \textit{state vector} $\ket{\psi} \in \bb{C}^{2^n}$ is a $2^n$-dimensional unit vector where $n$ is the number of qubits in the system.
+            It represents the state of all qubits in the system, and is given by $\ket{\psi} = a \ket{0} + b \ket{1} + \dots + c \ket{2^n - 1}$.
+        \end{definition}
+        \begin{definition}[Superposition]\label{def:superposition}
+            If a given state vector is not aligned with a basis vector then we say that this vector is a \textit{superposition}.
+        \end{definition}
+\end{frame}
+
+\begin{frame}
+\frametitle{Quantum Computing: How to Compute}
+        In order to compute we apply operations to our state. As mentioned, we require that a state be represented by a unit vector; in order to progress from one state to the next, we will require that any operations output only unit vectors. 
+        Such operations within a vector space such as $\bb{C}^{2^n}$ are called unitary operators, as described in \ref{history:linear_algebra}.
+        These unitary operators can be applied to act as logical operations, called ``logic gates" in the language of computer science. 
+        Using these logic gates we can create quantum circuits that are similar to classical circuits, allowing us to perform logical operations such as AND, OR, NOT etc.
+\end{frame}
+
+\begin{frame}
+\frametitle{Quantum Computing: Sample Computation}
+        For example, we can construct the quantum equivalent of the NOT gate, called the Pauli-X gate. 
+        This gate is given by the following matrix:
+            $$\begin{bmatrix} 0 & 1 \\ 1 & 0 \end{bmatrix}$$
+        We can verify that this in fact negates a given qubit:
+        \begin{align*}
+            \begin{bmatrix} 0 & 1 \\ 1 & 0 \end{bmatrix} \ket{0} &= \begin{bmatrix} 0 & 1 \\ 1 & 0 \end{bmatrix} \begin{bmatrix} 1 \\ 0 \end{bmatrix}& \begin{bmatrix} 0 & 1 \\ 1 & 0 \end{bmatrix} \ket{1} &= \begin{bmatrix} 0 & 1 \\ 1 & 0 \end{bmatrix} \begin{bmatrix} 0 \\ 1 \end{bmatrix}\\
+            &= \begin{bmatrix} 0 \\ 1 \end{bmatrix} & &= \begin{bmatrix} 1 \\ 0 \end{bmatrix}
+        \end{align*}
+        You may notice that this is in fact a rotation matrix, particularly about the $X$-axis, hence the name Pauli-X gate.
+        There are corresponding Pauli-$Y$ and $Z$ gates that represent rotations about other axes.
+\end{frame}
+
+\begin{frame}
+\frametitle{Quantum Computing: Limitations}
+        Unfortunately, though, it is not possible to create a universal gate, such as NAND, or NOR.
+        This means that for quantum computation, most circuits need to be designed specifically for the operations we want to run.
+\end{frame}
+
+\begin{frame}
+\frametitle{Quantum Computing: Measurement}
+        Once we have completed the computation we desire by applying unitary operators, we require a way of measuring the system in order to retrieve the information we have computed.
+        Due to the nature of quantum computing, we cannot directly observe our data
+        In order to retrieve the information we desire, we require a separable quantum state.
+        Given a separable state, we can retrieve information by applying special operators called \textit{measurement operators}, which will ``collapse" a state in superposition to a basis vector which we can observe.
+        \begin{definition}[Measurement Operators]\label{def:measurement_operator}
+            A collection $\{M_m\}$ of \textit{measurement operators} is a set of operators satisfying $$\sum_m M_m^* M_m = I.$$ 
+            These operators act on the state space, where the index $m$ represents the measurement outcomes that could occur. 
+            If the state of the system before measurement is $\psi$, then the probability result $m$ occurs is given by $$p(m) = \bra{\psi}M_m^* M_m \ket{\psi}$$ and the state after measurement is given by $$\frac{M_m \ket{\psi}}{\sqrt{p(m)}}$$
+        \end{definition}
+\end{frame}
+
+\begin{frame}
+\frametitle{Quantum Computing: Measurement Example}
+        \begin{example}
+            An example of a set of measurement operators is the set of projection matrices in $\bb{C}^{2}$.
+            These matrices are given by $$P_x = \begin{bmatrix} 1 & 0 \\ 0 & 0 \end{bmatrix}$$ and $$P_y = \begin{bmatrix} 0 & 0 \\ 0 & 1 \end{bmatrix}$$
+            It is clear that the sum of these matrices gives back the identity matrix, hence they satisfy the requirement given in the definition of measurement operators.\\
+            Since these are projection matrices, it is also evident that after applying these matrices to a vector we obtain a unit vector, satisfying the need to collapse a superposition.
+        \end{example}
+\end{frame}
+
+\begin{frame}
+\frametitle{Representation Theory of Groups: Motivation}\label{history:representation_theory}
+        We continue our necessary background with an introduction to representation and character theory.
+        The discussion of this topic provides the foundation for the Quantum Fourier Transform (QFT).
+        QFT is the key component in algorithms such as Shor's algorithm, famously developed in 1994 to find the prime factors of a given integer efficiently on a quantum computer of sufficient size.
+        Similarly, QFT permits quantum computing to solve problems such as the hidden subgroup problem more efficiently than classical computers.
+\end{frame}
+
+\begin{frame}
+\frametitle{Representation Theory: Representations}
+        To begin, we define the concept of a \textit{representation} of a group $G$.
+        \begin{definition}[Representation]\label{def:representation}
+            A representation $\rho$ of a group $G$ is a homomorphism $\rho : G \to GL(V)$ for some finite dimensional vector space $V$. 
+            Here, $GL(V)$ denotes the general linear group of the vector space $V$, which is the set of invertible matrices on $V$.
+        \end{definition}
+\end{frame}
+
+\begin{frame}
+\frametitle{Representation Theory: Characters}
+        We think of a representation as a map that treats group elements of $G$ as functions acting on $V$.
+        For any given representation, we have an associated \textit{character}.
+        \begin{definition}[Character]\label{def:character}
+            Given a group $G$ with a representation $\rho: G \to GL(V)$, we define the \textit{character} $\chi_\rho$\footnote{often the subscript is omitted when there is no room for confusion as to which representation this character is from} of $\rho$ as the map $\chi_\rho: G \to \bb{C}$ given by $\chi_\rho (g) = \tr{\rho(g)}$.
+        \end{definition}
+        We call this the character of a representation because it carries essential information about the representation and can be used to \textit{characterize} a representation more concisely.
+\end{frame}
+
+\begin{frame}
+\frametitle{Representation Theory: Inner Product}
+        We define an inner product on functions on $G$ by
+        \begin{equation}\label{def:character_inner_product}
+            \inner{f}{h} = \frac{1}{\abs{G}}\sum_{g \in G} f(g) \conj{h(g)}.
+        \end{equation}
+
+        With this inner product we have a sense of orthogonality for characters and other functions on $G$.
+\end{frame}
+
+\begin{frame}
+\frametitle{Representation Theory: Isomorphic Representations}
+        \begin{definition}[Isomorphic Representations]\label{def:isomorphic_representations}
+            Two representations $\rho_1: G \to GL(V), \rho_2: G \to GL(W)$ of a group $G$ are called \textit{isomorphic}\footnote{the term ``equivalent'' is also frequently used} if there exists an isomorphism $\phi: V \to W$ such that $\phi(\rho_1(g)(v)) = \rho_2(g)(\phi(v)), \forall v \in V, \forall g \in G$.
+            We write $\rho_1 \iso \rho_2$.
+        \end{definition}
+        This definition provides us a tool for examining and comparing representations.
+\end{frame}
+
+\begin{frame}
+\frametitle{Representation Theory: Irreducible Representations}
+        \begin{definition}[Irreducible Representation]\label{def:irrep}
+            A representation is said to be \textit{irreducible} if there are no non-trivial subspaces $W \subset V$ such that $\rho(g)(W) \subset W, \forall g \in G$. The character of an irreducible representation is called an \textit{irreducible character}.
+        \end{definition}
+
+        We can more easily determine if a representation is irreducible by applying the following theorem:
+        \begin{theorem}\label{thm:irreducible_characters_are_normal}
+            A representation $\rho$ is irreducible iff its character $\chi$ has norm 1.
+        \end{theorem}
+\end{frame}
+
+\begin{frame}
+\frametitle{Representation Theory: Schur's Lemma I}
+        \begin{theorem}[Schur's Lemma]\label{thm:schurs_lemma}
+            Let $G$ be a group with irreducible representations $\rho_1: G \to GL(V)$ and $\rho_2: G \to GL(W)$.
+            Let $f: GL(V) \to GL(W)$ be a linear operator satisfying $\rho_2(f(g)) = f(\rho_1(g))$.
+            Then we have the following:
+                \begin{enumerate}
+                \item If $\rho_1$ and $\rho_2$ are not isomorphic then $f = 0$.
+                \item If $V \iso W$ and $\rho_1 \iso \rho_2$ then $f$ is a scalar multiple of the identity.
+                \end{enumerate}
+        \end{theorem}
+\end{frame}
+
+\begin{frame}
+\frametitle{Representation Theory: Schur's Lemma II}
+\begin{theorem}[Corollary to Schur's Lemma]
+            If $h: V \to W$ is a linear operator and $h_0$ is a map given by
+                $$h_0 = \frac{1}{\abs{G}} \sum_{g \in G} \left(\rho_2(g)\right)^{-1} h(\rho_1(g))$$
+            then:
+                \begin{enumerate}
+                \item If $\rho_1$ and $\rho_2$ are not isomorphic then $h_0 = 0$.
+                \item If $V \iso W$ and $\rho_1 \iso \rho_2$ then $h_0 = \frac{\tr{h}}{\dim{V}} I$.
+                \end{enumerate}
+        \end{theorem}
+\end{frame}
+
+\begin{frame}
+\frametitle{Representation Theory: An Orthonormal Set}
+        \begin{theorem}\label{thm:serre15}
+            The set of irreducible characters on $G$, denoted $\hat{G}$, forms an orthonormal set.
+        \end{theorem}
+        \begin{proof}
+            We provide an outline of a proof:
+            If $\chi$ is the character of an irreducible representation then using the inner product defined by \ref{def:character_inner_product} and by \ref{thm:irreducible_characters_are_normal} we have that $\inner{\chi}{\chi} = 1$, hence irreducible characters are normal.
+            Using the same inner product, if $\chi$ and $\chi'$ are the characters of two non-isomorphic irreducible representations then $\inner
+{\chi}{\chi'} = 0$.
+            The remainder of the proof of this can be found in \cite{serre}.
+        \end{proof}
+\end{frame}
+
+\begin{frame}
+\frametitle{Representation Theory: Conjugate Representation}
+        \begin{definition}[Conjugate Representation]\label{def:conjugate_representation}
+            For a representation $\rho: G \to GL(V)$, the \textit{conjugate representation} $\conj{\rho}: G \to GL(V^*)$ is given by
+                $$\conj{\rho}(g) = \conj{\rho(g)}.$$
+            If $\rho$ has matrix representation $A$ then $\conj{\rho}$ is $\overline{A}$.
+        \end{definition}
+\end{frame}
+
+\begin{frame}
+\frametitle{Representation Theory: Conjugate Characters}
+        \begin{theorem}\label{thm:conjugate_character}
+            Given a representation $\rho$, $\chi_{\conj{\rho}} = \conj{\chi_\rho}$.
+        \end{theorem}
+\end{frame}
+
+\begin{frame}
+\frametitle{Representation Theory: Irreducible Conjugate Representations}
+        \begin{theorem}\label{thm:irreducible_conjugate}
+            The conjugate of an irreducible representation is irreducible.
+        \end{theorem}
+        \begin{proof}
+            Let $\rho : G \to GL(V)$ be an irreducible representation with character $\chi_\rho$.\\
+            Then:
+            \begin{align*}
+            \inner{\chi_{\conj{\rho}}}{\chi_{\conj{\rho}}} &= \inner{\conj{\chi_\rho}}{\conj{\chi_\rho}} & \text{by \ref{thm:conjugate_character}}\\
+            &= \inner{\chi_\rho}{\chi_\rho} & \text{by definition of inner product}\\
+            &= 1 & \text{by \ref{thm:irreducible_characters_are_normal} since $\rho$ is irreducible}
+            \end{align*}
+            Hence $\conj{\rho}$ is irreducible by \ref{thm:irreducible_characters_are_normal}.
+        \end{proof}
+        Given an irreducible representation, this allows us to easily find another.
+\end{frame}
+
+\begin{frame}
+\frametitle{Representation Theory: Class Functions}
+        \begin{definition}[Class Function]\label{def:class_function}
+            A function $f : G \to V$ is called a \textit{class} function if it is constant on conjugacy classes of $G$, i.e. if $f(hgh^{-1}) = f(g), \forall g, h \in G$.
+        \end{definition}
+        For abelian groups, these represent all functions on $G$.
+\end{frame}
+
+\begin{frame}
+\frametitle{Representation Theory: An Orthonormal Basis}
+        \begin{theorem}\label{thm:irr_characters}
+            For a given group $G$, the set $\hat{G} = \{\chi_0. \dots, \chi_{N-1}\}$ of all irreducible characters of $G$ forms an orthonormal basis for the space of class function on $G$.
+        \end{theorem}
+        \begin{proof}
+            As shown in \ref{thm:serre15}, we know that this set is orthonormal. It remains to show that it forms a basis, i.e. that this set spans $\text{Cl}(G)$.
+
+            Let $\rho$ be an irreducible representation of $G$.\\
+            Let $f \in \Cl{G}$ and suppose that it is orthogonal to every irreducible character of $G$, i.e. it is not in the span of these characters.\\
+            We define the map 
+                $$\rho_f = \sum_{g \in G} f(g) \rho(g)$$
+            from $V$ into itself.
+
+            Let $g' \in G$ be arbitrary.\\
+            Then:
+            \begin{align*}
+            \rho_f(\rho(g')) &= \sum_{g \in G} f(g) \rho(g) \rho(g') & \text{by definition of $\rho_f$}\\
+            &= \sum_{g \in G} f(g) \rho(gg') & \text{since $\rho$ is a homomorphism}\\
+            &= \sum_{g \in G} f(g) \rho(g'(g')^{-1} g g') & \text{multiplying by $g'(g')^{-1} = e)$}\\
+            &= \sum_{g \in G} f(g) \rho(g') \rho((g')^{-1} g g') & \text{since $\rho$ is a homomorphism}\\
+            &= \rho(g') \sum_{g \in G} f(g) \rho((g')^{-1} g g') & \text{since $\rho(g')$ does not depend on $g$}\\
+            &= \rho(g') \sum_{g \in G} f(g' ((g')^{-1} g g') (g')^{-1}) \rho((g')^{-1} g g')\\
+            &= \rho(g') \sum_{g \in G} f((g')^{-1} g g') \rho((g')^{-1} g g') & \text{since $f$ is a class function}\\
+            &= \rho(g') \rho_f & \text{by definition of $\rho_f$}
+            \end{align*}
+            This show that $\rho_f$ satisfies the requirements of Schur's Lemma, and since $\rho$ is irreducible we have that $\rho_f$ is a scalar multiple of the identity.
+
+            Since $\rho_f = \lambda I$ we have that $\tr{\rho_f} = \lambda d$ where $d$ is the degree of $\rho$.
+            By definition we have that $\tr{\rho(g)} = \chi(g)$, hence
+            \begin{align*}
+            \tr{\rho_f} &= \tr{\sum_{g \in G} f(g) \rho(g)}\\
+            &= \sum_{g \in G} f(g) \chi_{\rho}(g) & \text{by definition of $\chi_\rho$}\\
+            &= \abs{G}\inner{f}{\conj{\chi}} &\text{by definition of inner product}
+            \end{align*}
+
+            Since $\rho$ is irreducible by \ref{thm:irreducible_conjugate} we have that so is $\conj{\rho}$ and hence $\conj{\chi}$ is an irreducible character.\\
+            This means that this inner product is zero, and hence $\lambda = 0$.\\
+            Hence for any irreducible representation, $\rho_f = 0$.
+        \end{proof}
+\end{frame}
+
+\begin{frame}
+\frametitle{Representation Theory: Abelian vs. Non-Abelian Bases}
+        Notice that for abelian groups the set of class functions on $G$, denoted $\Cl{G}$ is equivalent to the set of all complex valued functions on $G$, $\bb{C}^G$. This fact is important in our construction and application of the Quantum Fourier Transform, as the transform applies a change of basis and this will be the basis we choose.
+
+        Unfortunately, this is not the case for non-abelian groups, and hence the same construction does not suffice. 
+        Instead of using the characters of irreducible representations as an orthonormal basis for the class functions, for non-abelian finite groups we proceed as follows:
+        
+        Determine the set of all irreducible representations $\rho_i$ of $G$. 
+        We choose a basis $\cal{B}$ for each representation such that the matrix $M_\rho(g) = (\rho_{ij}(g))_{i,j}$ is unitary for each $g \in G$. 
+        We call the entries of these matrices the matrix coefficients of $\rho$ with respect to the chosen basis $\cal{B}$. 
+        These matrix coefficients define functions from $G \to \bb{C}$, and furthermore form an orthogonal basis for $\bb{C}^G$. 
+        By normalizing we find an orthonormal basis for $\bb{C}^G$. 
+        Proof of this can be found in \cite{perepechaenko} and \cite{serre}.
+        
+        We will formalize this important result as a theorem for future reference:
+        \begin{theorem}\label{thm:matrix_coefficients}
+                If $G$ is a finite group, then a basis can be chosen such that the matrix $M_\rho(g)$ is unitary. The set of these coefficients forms an orthogonal basis for $\bb{C}^G$, and the set $\{\sqrt{\textnormal{dim}(\rho)} (\rho, i, j)\}$ where $(\rho, i, j)$ is the $i,j$th coefficient of the matrix $M_\rho(g)$ is an orthonormal basis for $\bb{C}^G$.
+        \end{theorem}
+\end{frame}
+
+\begin{frame}
+\frametitle{The Quantum Fourier Transform: Motivation}\label{history:QFT}
+
+        With the appropriate background and a basis for $\bb{C}^G$, we can now define the general @quantum fourier transform.
+        This transform, as alluded to in \ref{history:representation_theory}, is a change of basis formula.
+        In particular, the basis we change to is generated by the irreducible representations of a group $G$, and is invariant under the group actions of $G$, i.e. if $\ket{i}$ is a basis vector then $\rho(g)(\ket{i}) \in \textnormal{span}\{\ket{i}\}$.
+\end{frame}
+
+\begin{frame}
+\frametitle{QFT: Abelian QFT}
+        As mentioned at the end of the previous section, the basis differs based on whether we have an abelian group.
+        For abelian groups, we obtain the formula
+        \begin{equation}\label{def:abelian_QFT}
+            \cal{F}_G(\ket{g}) = \frac{1}{\sqrt{\abs{G}}} \sum_{i=0}^{\abs{G}} \chi_i(g) \ket{\chi_i}.
+        \end{equation}
+        using the basis of irreducible characters of $G$, which is an orthonormal basis for $\bb{C}^G$ by \ref{thm:irr_characters}.
+\end{frame}
+
+\begin{frame}
+\frametitle{QFT: Non-Abelian QFT}
+        For general non-abelian groups we recall from that the set of irreducible characters is not a basis for $\bb{C}^G$, but invoking \ref{thm:matrix_coefficients} we can use the set of scaled matrix coefficients as a basis, giving the \textit{general Quantum Fourier Transform}:
+        \begin{equation}\label{def:general_QFT}
+        \cal{F}_G(\ket{g}) = \frac{1}{\sqrt{\abs{G}}} \sum_{\sigma \in \hat{G}} \sqrt{\dim{\sigma}} \sum_{i,j = 1}^{\dim{\sigma}} \sigma(g)_{i,j} \ket{\sigma, i, j}
+        \end{equation}
+        where $\ket{\sigma, i, j}$ denotes the map from $GL(V) \to \bb{Z}$ taking a group element $g$ to it's matrix coefficient at $i, j$ under $\sigma$, or more concisely $\ket{\sigma, i, j}(g) = \bra{i}\sigma(g) \ket{j}$.
+\end{frame}
+
+\begin{frame}
+\frametitle{QFT: Equivalent Transforms}
+        Notice that for the case of abelian groups the general QFT is equivalent to that of the ablian QFT; the representations are all of dimension 1 and hence the matrices are $1 \times 1$, meaning that the second sum in the general QFT disappears and we obtain the abelian case.
+        Thanks to this, when we discuss the quantum fourier transform in the future we will discuss only the general case unless stated otherwise.
+\end{frame}
+
+\begin{frame}
+\frametitle{QFT: QFT is Unitary}
+        Referring back to \ref{history:quantum_computing} we recall that any transformation we apply must be unitary.
+        Fortunately for us, QFT is a unitary transform:
+        \begin{theorem}
+                The quantum fourier transform is a unitary transformation.
+        \end{theorem}
+        \begin{proof}
+                A formal proof of this can be found in \cite{perepechaenko}, but we provide an intuitive argument here.
+                Notice that the general quantum fourier transform is a tranformation from an orthonormal basis to an orthonormal basis.
+                This means that, at the very least, $\cal{F}$ preserves the norm of unit vectors, which is sufficient for our purposes.
+        \end{proof}
+\end{frame}
+        
+\begin{frame}
+\frametitle{QFT: Example}
+        This definition can appear intimidating, and so we now examine an example of applying the quantum fourier transform, based on \cite{hadfield}.
+        \begin{example}
+            We consider a simple example using the group $\bb{Z}_2$ and denote the elements of this group by the vectors $\ket{0}$ and $\ket{1}$ and operation given by $\ket{i} + \ket{j} = \ket{i + j \mod 2}$. The state space we take to be $\bb{C}^2 = \bb{C}\bb{Z}_2$.
+            For this group we have two irreducible representations, given by
+                $$\rho_0(\ket{i}) = \ket{i}$$ 
+            and 
+                $$\rho_1(\ket{i}) = \ket{(-1)^i}$$
+            with characters 
+                $$\chi_0(\ket{i}) = \ket{i} = \begin{bmatrix} 1 & 0\\ 0 & 1\end{bmatrix} \ket{i}$$
+            and 
+                $$\chi_1(\ket{i}) = \ket{(-1)^i} = \begin{bmatrix} \frac{1}{\sqrt{2}} & -\frac{1}{\sqrt{2}}\\ \frac{1}{\sqrt{2}} & \frac{1}{\sqrt{2}}\end{bmatrix} \ket{i}.$$
+            Given the standard basis for $\bb{C}^2$ given by $\ket{0}, \ket{1}$, we can apply the fourier transform as follows:
+
+            Recall that the general quantum fourier transform is given by
+                $$\cal{F}_G(\ket{g}) = \frac{1}{\sqrt{\abs{G}}} \sum_{\sigma \in \hat{G}} \sqrt{\dim{\sigma}} \sum_{i,j = 1}^{\dim{\sigma}} \sigma(g)_{i,j} \ket{\sigma, i, j}.$$
+
+            We apply this to our basis vectors:
+            \begin{align*}
+            \cal{F}_G(\ket{0}) &= \frac{1}{\sqrt{2}} \sum_{\sigma \in \hat{\bb{Z}}_2} \sqrt{\dim{\sigma}} \sum_{i,j = 1}^{\dim{\sigma}} \sigma(\ket{0})_{i,j} \ket{\sigma, i, j}\\
+            &= \frac{1}{\sqrt{2}} \sum_{\sigma \in \hat{\bb{Z}}_2} \sqrt{2} \sum_{i, j = 1}^2 \sigma(\ket{0}) \ket{\sigma, i, j}\\
+            &= \frac{1}{\sqrt{2}} \ket{0} + \frac{1}{\sqrt{2}} \ket{1}
+            \end{align*}
+            and
+            \begin{align*}
+            \cal{F}_G(\ket{1}) &= \frac{1}{\sqrt{2}} \sum_{\sigma \in \hat{\bb{Z}}_2} \sqrt{\dim{\sigma}} \sum_{i,j = 1}^{\dim{\sigma}} \sigma(\ket{1})_{i,j} \ket{\sigma, i, j}\\
+            &= \frac{1}{\sqrt{2}} \sum_{\sigma \in \hat{\bb{Z}}_2} \sqrt{2} \sum_{i,j = 1}^2 \sigma(\ket{1})_{i,j} \ket{\sigma, i, j}\\
+            &= \frac{1}{\sqrt{2}} \ket{0} - \frac{1}{\sqrt{2}} \ket{1}
+            \end{align*}
+        \end{example}
+\end{frame}
+
+%TODO intro frame for HSP?
+
+\begin{frame}
+\frametitle{HSP: Separating Function}\label{sec:HSP}
+    With the background provided, we are now prepared to discuss the main topic of this report, the hidden subgroup problem (HSP).
+    The HSP relies on the concept of a \textit{hiding function} over a group $G$.
+    \begin{definition}[Separating Function]\label{def:separating_function}
+            We say that a function $f : G \to X$ mapping a group $G$ to a set $X$ \textit{separates cosets} of a subgroup $H$ if for any $g_1, g_2 \in G$ we have $$f(g_1) = f(g_2) \iff g_1 H = g_2 H.$$
+        \end{definition}
+\end{frame}
+
+\begin{frame}
+\frametitle{HSP: The Problem}
+        With this notion of separating cosets, we can discuss the problem of \textit{hiding} them:
+        \begin{problem}[Hidden Subgroup Problem]\label{problem:HSP}
+            Given a group $G$, a finite set $X$ and a function $f: G \to X$ that separates cosets of subgroup $H$, use evaluations of $f$ to determine a generating set for $H$.
+        \end{problem}
+        This problem can be solved classically by evaluating $f(g)$ for every $g \in G$, but this method is incredibly inefficient.
+        Quantum algorithms allow this to be computed much more efficiently, as we will see in \ref{sec:HSP_algorithms}
+\end{frame}
+
+\begin{frame}
+\frametitle{Abelian HSP: Introduction}\label{HSP:abelian_HSP}
+        We begin our discussion of the hidden subgroup problem with abelian groups.
+        Abelian groups provide the simplest case of the hidden subgroup problem, since the structure given by the abelian property can be leveraged to simplify the HSP.
+\end{frame}
+
+\begin{frame}
+\frametitle{Abelian HSP: Example}
+        An example of the Hidden Subgroup Problem over abelian groups is the Discrete Logarithm Problem.
+        The Discrete Logarithm Problem is described as follows:
+        \begin{problem}[Discrete Logarithm Problem]\label{problem:dlp}
+            Given a group $g = \bb{Z}_p$ generated by an element $g$, and an element $h = g^r \in G$, determine $r$.
+        \end{problem}
+
+        To formulate this in terms of the hidden subgroup problem, we first translate from $\bb{Z}_p$ to the group $\bb{Z}_{p-1} \times \bb{Z}_{p-1}$ with entry-wise multiplication mod $p$.
+        The subgroup is given by $H = \{(xr, x) \mid x \in \bb{Z}_{p-1}\}$ where $r$ is the exponent $h = g^r$.
+        The function $f$ is given by 
+            $$f(x, y) = g^x h^{-y} = g^x g^{-ry} = g^{x - ry}$$ 
+        where $g$ is the generator for $G$.
+        We now show that $H$ is in fact a subgroup, and that $f$ separates cosets of $H$.
+        \begin{theorem}
+            the set $H = \{(xr, x) \mid x \in \bb{z}_{p - 1}\}$ is a subgroup of $g = \bb{Z}_{p-1} \times \bb{Z}_{p-1}$.
+        \end{theorem}
+        \begin{proof}
+            $H$ is trivially a non-empty subset of $G$, so it remains only to check that $H$ is a group.
+
+            Let $(sr, s), (tr, t) \in H$.\\
+            Notice that $(tr, t)^{-1} = (-tr, -t)$.\\
+            This is clearly of the form $(xr, x)$ and hence is an element of $H$, hence $H$ contains inverses for each element.
+
+            Notice also that $(tr, t) \cdot (sr, s) = (tr + sr, t + s) = ((t + s)r, ((t + s))$ which is of the form $(xr, x)$ for $x = (t + s)$, hence $H$ is closed.
+
+            Therefore $H$ is a subgroup of $G$ by the 2-step subgroup test, as wanted.
+        \end{proof}
+        \begin{theorem}\label{thm:DLP_separating_function}
+            $f(x, y) = g^x g^{-ry}$ separates cosets of $H$.
+        \end{theorem}
+        In order to show this, we first prove a lemma:
+        \begin{lemma}\label{lemma:DLP_lemma}
+                $f(x, y) = 1 \iff (x, y) \in H$.
+        \end{lemma}
+        \begin{proof}
+                $$\implies$$
+                Suppose $f(x,y) = 1$.
+                \begin{align*}
+                        f(x, y) &= 1\\
+                        \iff g^{x - ry} &= 1 & \text{by definition of $f(x, y)$}\\
+                        \iff x - ry &= 0 & \text{in $\bb{Z}_p$}\\
+                        \iff x &= ry\\
+                        \iff (x, y) &= (xr, x)
+                \end{align*}
+                Hence $(x, y) \in H$.
+
+                $$\impliedby$$
+                Suppose $(x, y) \in H$.\\
+                Then $(x, y) = (ra, a)$ for some $a \in G$.
+                \begin{align*}
+                        g^{x - ry} &= g^{ra - ra} & \text{by definition of $f(x, y)$}\\
+                        &= g^0 & \text{in $\bb{Z}_p$}\\
+                        &= 1
+                \end{align*}
+                Hence $f(x, y) = 1$.
+
+                Therefore $f(x,y) = 1 \iff (x,y) \in H$, as wanted.
+        \end{proof}
+
+        We can now prove \ref{thm:DLP_separating_function}.
+        \begin{proof}
+                        $$\implies$$
+                Suppose $f(a) = f(b)$, where $a = (a_1, a_2), b = (b_1, b_2) \in G$.\\
+                Then:
+                \begin{align*}
+                        f(a) &= f(b)\\
+                        g^{a_1 - r a_2} &= g^{b_1 - r b_2} & \text{by definition of $f$}\\
+                        g^{a_1 - r a_2 - (b_1 - r b_2)} &= 1\\
+                        g^{(a_1 - b_1) - r(a_2 - b_2)} &= 1\\
+                        f(a - b) &= 1 & \text{by definition of $f$}
+                \end{align*}
+                Hence $a - b \in H$ by \ref{lemma:DLP_lemma}.\\
+                Since $a - b \in H$, $a + H = b + H$.
+
+                        $$\impliedby$$
+                Suppose $a + H = b + H$.\\
+                Then $a - b \in H$ and by lemma $f(a - b) = 1$.
+                \begin{align*}
+                        f(a - b) &= 1\\
+                        g^{(a_1 - b_1) - r(a_2 - b_2)} &= 1 & \text{by definition of $f$}\\
+                        g^{a_1 - ra_2 - (b_1 - rb_2)} &= 1\\
+                        g^{a_1 - ra_2} &= g^{b_1 - r b_2}\\
+                        f(a) &= f(b) & \text{by definition of $f$}
+                \end{align*}
+                
+                Therefore $f(a) = f(b) \iff a + H = b + H$, as wanted.
+        \end{proof}
+        Hence $f$ separates cosets of $H$, and we can see that the discrete logarithm problem is an instance of the hidden subgroup problem.
+        The discrete logarithm problem is a key problem used in many important public-key cryptographic systems, for example El-Gamal and the Diffie-Hellman key exchange.
+        We can also generalize other problems, such as the period-finding problem and the order finding problem.
+        These problems are the foundation of many modern cryptographic systems, and as a generalization of these, solving the HSP efficiently allows us to solve any of these problems efficiently.
+\end{frame}
+
+\begin{frame}
+\frametitle{Algorithms for HSP: Coset Sampling Method}\label{sec:HSP_algorithms}
+        The most common method for solving the HSP is the \textit{Coset Sampling Method}.\\
+        The coset sampling method is described in \cite{perepechaenko} as follows:
+        Let $G$ be a finite group and $H$ a subgroup hidden by the function $f : G \to X$. Let $\cal{H}$ be a Hilbert space spanned by the elements of $X$ and let $\cal{G}$ be the Hilbert space spanned by elements of $G$.
+
+        Note: We use $\psi_i$ to denote the $i$th state vector of our program. 
+        This means that $i$ increases by 1 for each operation applied to our state vector.
+        
+        \begin{enumerate}
+        \item[Step 1:]
+            To begin, we prepare two registers. The first register is given by 
+                $$\ket{\psi_1} = \frac{1}{\sqrt{\abs{G}}} \sum_{g \in G} \ket{g} \otimes \ket{0}$$
+            and contains a uniform superposition of the elements of $G$. 
+            The second register is initialized to $\ket{0}$, and later will store states of $\cal{H}$.
+            Notice that both registers are represented in our state vector $\psi_i$; the first register is represented by $\ket{g}$ on the left of the tensor product, and the second register is represented by $\ket{0}$ on the right side.
+
+        \item[Step 2:]
+            Evaluate $f$ in the second register, producing the state
+                $$\ket{\psi_2} = \frac{1}{\sqrt{\abs{G}}} \sum_{g \in G} \ket{g} \otimes \ket{f(g)}.$$
+
+        \item[Step 3:]
+            Now measure the second register using the measurement system $\{M_x = \ket{x}\bra{x} \mid x \in X\}$ given by orthogonal projection onto the span of orthonormal basis vectors of $\cal{H}$.
+            This yields the outcome $x$ with probability $p_x$.
+            We determine $p_x$ as follows:
+            \begin{align*}
+            p_x &= \norm{I \otimes M_x \left(\frac{1}{\sqrt{\abs{G}}} \sum_{g \in G} \ket{g} \otimes \ket{f(g)}\right)}^2\\
+            &= \norm{\frac{1}{\sqrt{\abs{G}}} \sum_{g \in G} \ket{g} \otimes M_x \ket{f(g)}}^2 & \text{distributing the tensor products}\\
+            &= \norm{\frac{1}{\sqrt{\abs{G}}} \sum_{g \in G} \ket{g} \otimes \ket{x} \bra{x} \ket{f(g)}}^2 & \text{by definition of $M_x$}
+            \end{align*}
+            Notice that since $\cal{H}$ is spanned by elements of $X$, we have that an orthonormal basis for $\cal{H}$ is given by elements of $X$, which can be written as $f(g)$ for some $g \in G$ by definition of $X$.
+            This gives that 
+            \begin{align*}
+            p_x &= \norm{\frac{1}{\sqrt{\abs{G}}} \sum_{g \in G, f(g) = x} \ket{g} \otimes \ket{x}}^2\\
+            &= \frac{\abs{H}}{\abs{G}}
+            \end{align*}
+            Of particular interest here is that $p_x$ is independent of $x$.
+
+            If we suppose that $x$ has occurred, then we are left with the state
+            \begin{align*}
+            \ket{\phi} &= \frac{1}{\sqrt{p_x}} I \otimes M_x \left(\frac{1}{\sqrt{\abs{G}}} \sum_{g \in G} \ket{g} \otimes \ket{f(g)}\right)\\
+            &= \frac{\sqrt{\abs{G}}}{\sqrt{\abs{H}}} \frac{1}{\sqrt{\abs{G}}} \sum_{g \in G} \ket{g} \otimes M_x \ket{f(g)} & \text{distributing the tensor product}\\
+            &= \frac{1}{\sqrt{\abs{H}}} \sum_{g \in G} \ket{g} \otimes \ket{x} \bra{x} \ket{f(g)} & \text{by definition of $M_x$}\\
+            &= \frac{1}{\sqrt{\abs{H}}} \sum_{g \in G, f(g) = x} \ket{g} \otimes \ket{x}
+            \end{align*}
+
+            This is the set of all elements of $G$ that map to the value $x$.
+            Since $f$ is a hiding function, this means that we have recovered a coset $cH$ of $H$.
+            We make this cleared by writing
+                $$\ket{\phi} = \frac{1}{\sqrt{\abs{H}}} \sum_{h \in H} \ket{ch} \otimes \ket{x}$$
+            This state is a uniform superposition of elements of $cH$, and since $f(ch) = x$ for all $h \in H$ we can abbreviate this:
+                $$ \ket{\phi} = \ket{cH} = \frac{1}{\sqrt{\abs{H}}} \sum_{h \in H} \ket{ch}.$$
+
+        \item[Step 4:]
+            The last step in this process is left open-ended; there are numerous ways to continue, but the important part of the coset sampling method is to attain the coset state. From here, various different types of measurements can be applied to deduce information about the coset. Some examples include deducing an element of $H$, or a multiple of the order of $H$.
+        \end{enumerate}
+\end{frame}
+
+\begin{frame}
+\frametitle{Coset Sampling Method: Example}
+        The theoretical aspect of this method can be complicated, so we proceed with an example:
+        \begin{example}\label{sec:coset_sampling_method}
+            Let $G = \bb{Z}_6, H = \{0, 3\}$. We can find the cosets of $H$ are as follows:
+            \begin{align*}
+                H &= \{0, 3\}\\
+                1 + H &= \{1, 4\}\\
+                2 + H &= \{2, 5\}
+            \end{align*}
+            We take the hiding function $f$ to take a coset to the smallest element it contains, i.e. 
+            \begin{align*}
+                f(H) &= 0\\
+                f(1 + H) &= 1\\
+                f(2 + H) &= 2
+            \end{align*}
+
+            From these definitions we can determine the values mentioned in subsection \ref{sec:coset_sampling_method}, the abstract description of this method.
+            We first examine $f$ and notice that $X = \{0, 1, 2\}$.
+            We now search for $\cal{G}$ and $\cal{H}$.
+            Recall that these are Hilbert spaces spanned by $X$ and $G$ respectively.
+            Since $X = \{0, 1, 2\}$ does not represent an orthonormal basis if we were to take this directly to a familiar vector space such as $\bb{R}$, we can either re-define our inner product on this space to generate a reasonable Hilbert space, or more conveniently we can take $\cal{H} = \vspan{X} = \vspan{\ket{0}, \ket{1}, \ket{2}}$.
+            Similarly for $\cal{G}$ we can take $\cal{G} = \vspan{G} = \vspan{\ket{0}, \ket{1}, \ket{2}, \ket{3}, \ket{4}, \ket{5}}$.
+            In essence, given $X$ and $G$, we take the $i$th element of each to the basis vector $e_i$ in $\cal{H}$ and $\cal{G}$ respectively.
+            % TODO include explicit example of non-coset items cancelling out
+    
+            We proceed to solve this using the coset sampling method.
+            As mentioned, step 1 is to create two registers (recall that both registers are represented in a single state, written as a tensor product of the registers).
+            In this example, the first state is given by 
+                $$\ket{\psi_1} = \frac{1}{\sqrt{6}} \sum_{g \in \bb{Z}_6} \ket{g} \otimes \ket{0}$$
+            Next, we evaluate $f$ on the first register and store it in the second.
+                $$\ket{\psi_2} = \frac{1}{\sqrt{6}} \sum_{g \in \bb{Z}_6} \ket{g} \otimes \ket{f(g)}$$
+            Measuring with respect to the basis of elements of $G$ using $M_x = \ket{x} \bra{x}$ we obtain outcome $x$, giving  
+                $$ \ket{\phi} = \frac{1}{\sqrt{2}} \sum_{g \in \bb{Z}_6, f(g) = x} \ket{g} \otimes \ket{x}.$$
+            For the sake of this example suppose that $x = 1$.
+            Then we can write $\ket{\psi_2}$ explicitly as the superposition
+                \begin{align*}
+                \ket{\psi_2} &= \frac{1}{\sqrt{6}} \left( \ket{0} \otimes \ket{0} + \ket{1} \otimes \ket{1} + \ket{2} \otimes \ket{2} + \ket{3} \otimes \ket{0} + \ket{4} \otimes \ket {1} + \ket{5} \otimes \ket {2}\right)\\
+                \end{align*}
+            We then apply our measurement.
+            Recall that $p_x = \frac{\abs{H}}{\abs{G}}$, and so we obtain
+                \begin{align*}
+                \ket{\phi} &= \frac{1}{\sqrt{p_x}} I \otimes M_x \left(\frac{1}{\sqrt{\abs{G}}} \sum_{g \in G} \ket{g} \otimes \ket{f(g)}\right)\\
+                &= \frac{\sqrt{6}}{\sqrt{\abs{2}}} \frac{1}{\sqrt{\abs{6}}} \sum_{g \in \bb{Z}_6} \ket{g} \otimes M_x \ket{f(g)} & \text{distributing tensor product}\\
+                &= \frac{1}{\sqrt{2}} \sum_{g \in \bb{Z}_6} \ket{g} \otimes \ket{x} \bra{x} \ket{f(g)} & \text{by definition of $M_x$}\\
+                &= \begin{aligned}
+                    \frac{1}{\sqrt{2}} (&\\
+                    &\ket{0} \otimes \ket{1}\bra{1}\ket{0} + \\
+                    &\ket{1} \otimes \ket{1}\bra{1}\ket{1} + \\
+                    &\ket{2} \otimes \ket{1}\bra{1}\ket{2} + \\
+                    &\ket{3} \otimes \ket{1}\bra{1}\ket{0} + \\
+                    &\ket{4} \otimes \ket{1}\bra{1}\ket{1} + \\
+                    &\ket{5} \otimes \ket{1}\bra{1}\ket{2}
+                    )
+                    \end{aligned} & \text{expanding the sum}
+                \end{align*}
+                Recall that $\bra{x}\ket{y} = \inner{x}{y} = 0$ for $x \neq y$ since these are orthogonal basis vectors. This leaves
+                $$ \ket{\phi} = \frac{1}{\sqrt{2}} \ket{1} + \frac{1}{\sqrt{2}} \ket{4}$$
+            Which is clearly a uniform superposition of a coset of $H$, as expected.
+        \end{example}
+\end{frame}
+
+\begin{frame}
+\frametitle{Non-Abelian HSP: Dihedral Groups}\label{sec:non_abelian_HSP}
+        For the sake of this report, we define $D_{2n} = \gen{r, s \mid r^n = s^2 = rsrs = e}$.
+\end{frame}
+
+\begin{frame}
+\frametitle{Non-Abelian HSP: Subgroups}
+        \begin{theorem}
+            $D_{2p}$ has $p + 3$ subgroups.
+        \end{theorem}
+        %TODO elaborate and fill space here
+        \begin{example}
+            As an example, consider $D_4$.
+            Notice that $D_4 = D_{2p}$ with $p = 2$, and hence has $2 + 3 = 5$ subgroups, namely
+                $$\gen{e}, \gen{r}, \gen{s}, \gen{rs}, D_4.$$
+            Given a hiding function $f$ and a hidden subgroup $H$, we determine $H$ by querying (evaluating $f$ on) $e, r, rs$.
+            
+            Let $q_1, q_2$ denote two queried elements.
+            If $f(q_1) = f(q_2)$ then we have that $q_1, q_2 \in cH$ for some $c$, and hence $q_1^{-1} q_2 \in H$.
+            Since we queried generators, we have that $q_1^{-1} q_2$ generates $H$.\\
+            If $f(q_1) \neq f(q_2) \neq f(q_3)$ (i.e. they are all distinct) then the cosets of $H$ must separate these elements.\\
+            Notice that there is no way to construct cosets of the listed subgroups such that this occurs, other than to separate all elements, i.e. $H$ must be the trivial subgroup $\gen{e}$.
+
+            Hence we have found $H$.
+        \end{example}
+\end{frame}
+
+\begin{frame}
+\frametitle{Non-Abelian HSP: Subgroups of $D_{2p}$}
+        We can extend this method to any prime dihedral group $D_{2p}$ with $p \neq 2$ by querying $e, r, r^k s$ for $1 \leq k < p$.
+        Formalizing this we have the following theorem:
+
+        \begin{theorem}
+            For $G = D_{2p}$ with $p \neq 2$ there exists an algorithm to solve the $HSP$ over $G$ with $\frac{p+5}{2}$ queries.
+        \end{theorem}
+\end{frame}
+
+\begin{frame}
+\frametitle{Non-Abelian HSP: A Method for Solving HSP over $D_{2n}$}
+        \begin{theorem}
+            If $G = D_{2n}$ and $H \leqslant G$ be a subgroup hidden by the function $f : G \to X$. Then $f\mid_{C_n} : C_n \to X$ hides $H \cap C_n$.
+        \end{theorem}
+        \begin{proof}
+            Let $a, b \in C_n$ such that $f(a) = f(b)$.\\
+            Then $aH = bH \implies ab^{-1} \in H$.\\
+            Since $a, b \in C_n$, by closure we have $ab^{-1} \in C_n$.\\
+            Hence $ab^{-1} \in C_n \cap H$.
+
+            Suppose $a(H \cap C_n) = b(H \cap C_n)$.\\
+            Then $ab^{-1} \in H \cap C_n \implies ab^{-1} \in H$ and $ab^{-1} \in C_n$.\\
+            By closure of $C_n$ this gives that $a, b \in C_n$.\\
+            Notice that $ab^{-1} \in H \implies ab^{-1}H = H \implies aH = bH$, hence $f(a) = f(b)$.
+
+            Therefore $f(a) = f(b) \iff a(H \cap C_n) = b(H \cap C_n)$, as wanted.
+        \end{proof}
+
+        This result permits us to study the dihedral HSP in terms of cyclic groups, meaning that we can apply the coset sampling method and the abelian QFT in order to gain information about $H$ and $f$.
+\end{frame}
+
+\newpage
+\nocite{*}
+\printbibliography
+\end{document}
+
