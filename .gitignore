@@ -1,5 +1,14 @@
+.DS_Store
 *.aux
 *.log
+*.bbl
+*.blg
+*.bcf
+*.xml
+*.nav
+*.out
+*.snm
+*.toc
 makefile
 Extra\ Stuff
 Papers:Research
